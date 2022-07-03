@@ -6,7 +6,7 @@ Parameters:
     Type: String
 
 Resources:
-  prometheus3SecurityGroup:
+  prometheus4SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupName: !Sub prometheus2-${ID}
@@ -29,12 +29,12 @@ Resources:
           ToPort: 9093
           CidrIp: 0.0.0.0/0
 
-  prometheus3Instance:
+  prometheus4Instance:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t2.micro
       SecurityGroups:
-        - Ref: prometheus3SecurityGroup
+        - Ref: prometheus4SecurityGroup
       KeyName: marokey # If you use another key pair name, you should change this value to match.
       # If this ami id is not available for you, you can find another (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html)
       # Ubuntu 18 or higher works fine
