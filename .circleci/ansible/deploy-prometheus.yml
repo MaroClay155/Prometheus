@@ -1,6 +1,6 @@
 ---
 - name: "configuration play." 
-  hosts: prom
+  hosts: prom2
   user: ubuntu
   become: true
   become_method: sudo
