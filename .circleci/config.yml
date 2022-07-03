@@ -59,22 +59,22 @@ jobs:
               --tags project=prometheus
       - destroy_environment 
     
-    configure-prometheus:
-      docker:
-        - image: cimg/base:stable
-      steps:
-        - checkout
-        - install_awscli
-        - install_ansible
-        - install_nodejs
-        - add_ssh_keys:
-              fingerprints: ["87:c2:d0:af:d5:78:91:13:33:07:72:95:a4:9f:e1:89"]
-        - run:
-            name: Deploy prometheus
-            command: |
-              cd .circleci/ansible
-              echo "Contents  of the prometheus-inventory file is -------"
-              aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=prometheus2" --output text >> prometheusinventory.txt
-              cat prometheusinventory.txt
-              ansible-playbook -i prometheusinventory.txt deploy-prometheus.yml
-        - destroy_environment
+  configure-prometheus:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - install_awscli
+      - install_ansible
+      - install_nodejs
+      - add_ssh_keys:
+            fingerprints: ["87:c2:d0:af:d5:78:91:13:33:07:72:95:a4:9f:e1:89"]
+      - run:
+          name: Deploy prometheus
+          command: |
+            cd .circleci/ansible
+            echo "Contents  of the prometheus-inventory file is -------"
+            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=prometheus2" --output text >> prometheusinventory.txt
+            cat prometheusinventory.txt
+            ansible-playbook -i prometheusinventory.txt deploy-prometheus.yml
+      - destroy_environment
