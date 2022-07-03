@@ -78,3 +78,9 @@ jobs:
             cat prometheusinventory.txt
             ansible-playbook -i prometheusinventory.txt deploy-prometheus.yml
       - destroy_environment
+workflows:
+  default:
+    jobs:
+      - create-prometheus
+      - configure-prometheus:
+          requires: [create-prometheus]
