@@ -56,7 +56,7 @@ jobs:
               --template-file .circleci/files/prometheus.yml \
               --stack-name "prometheus2-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
-              --tags project=prometheus
+              --tags project=prometheus --region us-east-1
       - destroy_environment 
     
   configure-prometheus:
