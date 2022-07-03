@@ -1,0 +1,80 @@
+version: 2.1
+orbs:
+  slack: circleci/slack@4.9.3
+  
+commands:
+  install_awscli:
+    description: Install awscli
+    steps:
+      - run:
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+            
+  install_nodejs:
+    description: Install node.js 13
+    steps:
+      - run:
+          command: |
+            curl -fsSl https://deb.nodesource.com/setup_13.x | sudo -E bash -
+            sudo apt install -y nodejs
+            
+  install_ansible:
+    description: Install ansible
+    steps:
+      - run:
+          command: |
+            sudo apt update
+            sudo apt install software-properties-common -y
+            sudo add-apt-repository --yes --update ppa:ansible/ansible
+            sudo apt install ansible -y
+          
+  destroy_environment:
+    description: Destroy environment
+    steps:
+      - run:
+          name: Destroy environment
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name prometheus-${CIRCLE_WORKFLOW_ID:0:7}
+            
+
+      
+jobs:
+  create-prometheus:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - install_awscli
+      - run:
+          name: Ensure prometheus infrastructure exists
+          no_output_timeout: 30m
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/prometheus.yml \
+              --stack-name "prometheus2-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --tags project=prometheus
+      - destroy_environment 
+    
+    configure-prometheus:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - install_awscli
+      - install_ansible
+      - install_nodejs
+      - add_ssh_keys:
+            fingerprints: ["87:c2:d0:af:d5:78:91:13:33:07:72:95:a4:9f:e1:89"]
+      - run:
+          name: Deploy prometheus
+          command: |
+            cd .circleci/ansible
+            echo "Contents  of the prometheus-inventory file is -------"
+            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=prometheus" --output text >> prometheusinventory.txt
+            cat prometheusinventory.txt
+            ansible-playbook -i prometheusinventory.txt deploy-prometheus.yml
+      - destroy_environment
