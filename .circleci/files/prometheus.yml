@@ -41,4 +41,4 @@ Resources:
       ImageId: ami-068663a3c619dd892
       Tags:
         - Key: Name
-          Value: prometheus2-${ID}
+          Value: prometheus2
