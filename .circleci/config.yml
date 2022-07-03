@@ -37,7 +37,7 @@ commands:
           name: Destroy environment
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name prometheus-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name prometheus2-${CIRCLE_WORKFLOW_ID:0:7}
             
 
       
@@ -74,7 +74,7 @@ jobs:
           command: |
             cd .circleci/ansible
             echo "Contents  of the prometheus-inventory file is -------"
-            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=prometheus" --output text >> prometheusinventory.txt
+            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=prometheus2" --output text >> prometheusinventory.txt
             cat prometheusinventory.txt
             ansible-playbook -i prometheusinventory.txt deploy-prometheus.yml
       - destroy_environment
