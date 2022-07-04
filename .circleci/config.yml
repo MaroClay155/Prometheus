@@ -38,7 +38,7 @@ commands:
           when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name prometheus-${CIRCLE_WORKFLOW_ID:0:7}
-            aws cloudformation delete-stack --stack-name alertmanager-${CIRCLE_WORKFLOW_ID:0:7}
+            
             
 
       
@@ -59,16 +59,7 @@ jobs:
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
               --tags project=prometheus --region us-east-1
       - destroy_environment 
-  - run:
-          name: Ensure alertmanager infrastructure exists
-          no_output_timeout: 30m
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/alertmanager.yml \
-              --stack-name "alertmanager-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
-              --tags project=alertmanager --region us-east-1
-      - destroy_environment 
+  
     
   configure-prometheus:
     docker:
@@ -89,15 +80,7 @@ jobs:
             cat prometheusinventory.txt
             ansible-playbook -i prometheusinventory.txt deploy-prometheus.yml
       - destroy_environment
-      - run:
-          name: Deploy alertmanager
-          command: |
-            cd .circleci/ansible
-            echo "Contents  of the alertmanager-inventory file is -------"
-            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=alertmanager" --output text >> alertmanagerinventory.txt
-            cat alertmanagerinventory.txt
-            ansible-playbook -i alertmanagerinventory.txt deploy-alertmanager.yml
-      - destroy_environment
+      
 workflows:
   default:
     jobs:
