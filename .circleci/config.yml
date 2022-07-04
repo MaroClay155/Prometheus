@@ -95,7 +95,7 @@ jobs:
             echo "Contents  of the alertmanager-inventory file is -------"
             aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=alertmanager" --output text >> alertmanagerinventory.txt
             cat alertmanagerinventory.txt
-            ansible-playbook -i alertmanagerinventory.txt deploy-prometheus.yml
+            ansible-playbook -i alertmanagerinventory.txt deploy-alertmanager.yml
       - destroy_environment
 workflows:
   default:
