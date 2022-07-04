@@ -2,6 +2,7 @@
 - name: "install prometheus"
   shell: |
     sudo useradd --no-create-home prometheus
+    sudo useradd --no-create-home node_exporter
     sudo mkdir /etc/prometheus
     sudo mkdir /var/lib/prometheus
     wget https://github.com/prometheus/prometheus/releases/download/v2.19.0/prometheus-2.19.0.linux-amd64.tar.gz
@@ -12,6 +13,11 @@
     sudo cp -r prometheus-2.19.0.linux-amd64/console_libraries /etc/prometheus
     sudo cp prometheus-2.19.0.linux-amd64/promtool /usr/local/bin/
     rm -rf prometheus-2.19.0.linux-amd64.tar.gz prometheus-2.19.0.linux-amd64
+    
+    wget https://github.com/prometheus/node_exporter/releases/download/v1.0.1/node_exporter-1.0.1.linux-amd64.tar.gz
+    tar xzf node_exporter-1.0.1.linux-amd64.tar.gz
+    sudo cp node_exporter-1.0.1.linux-amd64/node_exporter /usr/local/bin/node_exporter
+    rm -rf node_exporter-1.0.1.linux-amd64.tar.gz node_exporter-1.0.1.linux-amd64
 - name: "add prometheus.yml"
   become: true
   copy:
@@ -21,6 +27,11 @@
   become: true
   copy:
     src: prometheus.service
+    dest: /etc/systemd/system/
+- name: "add node-exporter configuration service"
+  become: true
+  copy:
+    src: node-exporter.service
     dest: /etc/systemd/system/
 - name: "add rules.yml"
   become: true
@@ -40,7 +51,9 @@
     sudo systemctl daemon-reload
     sudo systemctl enable prometheus
     sudo systemctl start prometheus
+    sudo systemctl enable node-exporter
+    sudo systemctl start node-exporter
 
-- name: "restart prometheus"
-  shell: |
-    sudo systemctl restart prometheus
+#- name: "restart prometheus"
+#  shell: |
+#    sudo systemctl restart prometheus
