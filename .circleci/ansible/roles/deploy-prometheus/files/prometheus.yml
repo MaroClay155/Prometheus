@@ -5,12 +5,11 @@ global:
   query_log_file: /etc/prometheus/query.log
   # scrape_timeout is set to the global default (10s).
 
-# Alertmanager configuration
+# Alertmanager public ip address:9093
 alerting:
   alertmanagers:
     - static_configs:
-        - targets:
-          - Prometheus_Public_Ip_Address:9093
+        - targets: ["ec2-3-84-89-239.compute-1.amazonaws.com:9093"]
 
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
